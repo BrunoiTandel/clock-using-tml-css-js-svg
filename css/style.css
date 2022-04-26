@@ -7,12 +7,42 @@
 	font-family: 'Poppins', sans-serif;
 }
 
-body {
+#time {
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	min-height: 100vh;
 	background: #2F363E;
+}
+
+.timer-input-div {
+	position: absolute;
+	top: 25px;
+	left: 20px;
+	width: 80%;
+}
+
+#timer-time {
+	padding: 5px 5px 5px 10px;
+	border-radius: 0px;
+	border: 0;
+	width: 250px;
+}
+
+button {
+	width: 100px;
+	padding: 2px;
+	border: 0;
+	font-size: 13px;
+	color: #FFFFFF;
+}
+
+#submit-timer-time {
+	background: #17a2b8;
+}
+
+#stop-audio {
+	background: #ffea04;
 }
 
 #time {
@@ -49,6 +79,7 @@ body {
 #time .circle svg circle:nth-child(2) {
 	stroke: var(--clr);
 	stroke-dasharray: 440;
+	box-shadow: 0 0 20px var(--clr), 0 0 60px var(--clr);
 }
 
 #time div {
@@ -91,4 +122,9 @@ body {
 	border-radius: 50%;
 	box-shadow: 0 0 20px var(--clr),
 	0 0 60px var(--clr);
+	margin-top: -2px;
+}
+
+.d-none {
+	display: none;
 }

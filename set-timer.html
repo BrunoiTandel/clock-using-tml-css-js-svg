@@ -3,12 +3,17 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Digital Clock Using HTML, CSS, JS and SVG</title>
+	<title>Digital Timer Using HTML, CSS, JS and SVG</title>
 
 	<link rel="stylesheet" type="text/css" href="css/style.css">
 	<script type="text/javascript" src="js/jquery.min.js"></script>
 </head>
 <body>
+	<div class="timer-input-div">
+		<input type="number" id="timer-time" placeholder="Timer In Minutes">
+		<button id="submit-timer-time">Set Timer</button>
+		<button id="stop-audio" class="d-none">Stop Audio</button>
+	</div>
 	<div id="time">
 		<div class="circle" style="--clr: #FF2972">
 			<div class="dots hr_dot"></div>
@@ -34,9 +39,6 @@
 			</svg>
 			<div id="seconds">00<br><span>Second</span></div>
 		</div>
-		<div class="ap">
-			<div id="ampm">AM</div>
-		</div>
 	</div>
 
 	<script>
@@ -54,7 +56,48 @@
 			ss.style.strokeDashoffset = 440;
 		}
 
-		setInterval(function () {
+		var count = 0,
+			set_timer_var = '',
+			audio = new Audio('audio/iPhone-XS-Original.mp3');
+
+		$('#submit-timer-time').on('click', function() {
+			get_timer();	
+		});
+
+		$('#timer-time').on('keypress', function(e) {
+    		var key = e.which;
+    		if (key == 13) {
+        		get_timer();
+        		return false;
+    		}
+		});
+
+		$('#stop-audio').on('click', function() {
+			stop_audio();
+		});
+
+		function get_timer() {
+			stop_audio();
+
+			var timer_time = $('#timer-time').val(),
+				count = 0,
+				timer_time = timer_time * 60; // Convert the given input to seconds
+
+			clearInterval(set_timer_var);
+			
+			if (timer_time != '') {
+				set_timer_var = setInterval(function () {
+					if (count != 0) {
+						timer_time -= 1;
+					} else {
+						count++;
+					}
+					set_timer(time_convert(timer_time));
+				}, 1000);
+			}
+		}
+
+		function set_timer(get_converted_time) {
 			var hours = document.getElementById('hours'),
 				minutes = document.getElementById('minutes'),
 				seconds = document.getElementById('seconds'),
@@ -68,15 +111,9 @@
 				min_dot = document.querySelector('.min_dot'),
 				sec_dot = document.querySelector('.sec_dot');
 
-			var h = new Date().getHours(),
-				m = new Date().getMinutes(),
-				s = new Date().getSeconds(),
-				am = h >= 12 ? 'PM' : 'AM';
-
-			// Convert 24hrs to 12 hrs format
-			if (h > 12) {
-				h = h - 12;
-			}
+			var h = get_converted_time['hours'],
+				m = get_converted_time['minutes'],
+				s = get_converted_time['seconds'];
 
 			// Adding 0 before single digit
 			h = (h < 10) ? '0' + h : h;
@@ -98,7 +135,6 @@
 				add_s_in_sec = 's';
 			}
 			seconds.innerHTML = s + '<br><span>Second'+add_s_in_sec+'</span>';
-			ampm.innerHTML = am;
 
 			// 12 as it is 12 hrs format
 			hh.style.strokeDashoffset = 440 - (440 * h) / 12;
@@ -116,7 +152,45 @@
 			// min_dot.style.transition = `.2s ease-in-out`;
 			sec_dot.style.transform = `rotate(${s * 6}deg)`;
 			// sec_dot.style.transition = `.5s ease-in-out`;
-		}, 1000);
+
+			if (get_converted_time['seconds_left'] <= 0) {
+				$('#stop-audio').removeClass('d-none');
+				play_alarm();
+				clearInterval(set_timer_var);
+				return false;
+			}
+		}
+
+		function time_convert(value) {
+  			var sec = parseInt(value, 10), // convert value to number if it's string
+    			hours = Math.floor(sec / 3600), // get hours
+    			minutes = Math.floor((sec - (hours * 3600)) / 60), // get minutes
+    			seconds = sec - (hours * 3600) - (minutes * 60);
+		    
+		    var variable_array = {};
+			variable_array['hours'] = hours;
+			variable_array['minutes'] = minutes;
+			variable_array['seconds'] = seconds;
+			variable_array['seconds_left'] = value;
+		    return variable_array;
+		}
+
+		function play_alarm() {
+			if (typeof audio.loop == 'boolean') {
+    			audio.loop = true;
+			} else {
+    			audio.addEventListener('ended', function() {
+        			this.currentTime = 0;
+        			this.play();
+    			}, false);
+			}
+			audio.play();
+		}
+
+		function stop_audio() {
+			audio.pause();
+			$('#stop-audio').addClass('d-none');
+		}
 	</script>
 </body>
 </html>
